@@ -6,11 +6,17 @@ Description: Wrapper functions for calling OpenAI APIs.
 """
 import json
 import random
-import openai
+# import openai
+from openai import OpenAI
 import time 
 
 from utils import *
-openai.api_key = openai_api_key
+# openai.api_key = openai_api_key
+
+# openai_api_key = "EMPTY"
+# openai_api_base = "http://0.0.0.0:8000/v1"
+
+client = OpenAI()
 
 def ChatGPT_request(prompt): 
   """
@@ -26,14 +32,15 @@ def ChatGPT_request(prompt):
   """
   # temp_sleep()
   try: 
-    completion = openai.ChatCompletion.create(
-    model="gpt-35-turbo-0125", 
+    completion = client.chat.completions.create(
+    model="gpt-4o-mini", 
     messages=[{"role": "user", "content": prompt}]
     )
-    return completion["choices"][0]["message"]["content"]
+    return completion.choices[0].message.content
   
-  except: 
+  except Exception as e: 
     print ("ChatGPT ERROR")
+    print(e)
     return "ChatGPT ERROR"
 
 prompt = """
@@ -42,7 +49,7 @@ Character 1: Maria Lopez is working on her physics degree and streaming games on
 Character 2: Klaus Mueller is writing a research paper on the effects of gentrification in low-income communities.
 
 Past Context: 
-138 minutes ago, Maria Lopez and Klaus Mueller were already conversing about conversing about Maria's research paper mentioned by Klaus This context takes place after that conversation.
+138 minutes ago, Maria Lopez and Klaus Mueller were already conversing about Maria's research paper mentioned by Klaus This context takes place after that conversation.
 
 Current Context: Maria Lopez was attending her Physics class (preparing for the next lecture) when Maria Lopez saw Klaus Mueller in the middle of working on his research paper at the library (writing the introduction).
 Maria Lopez is thinking of initating a conversation with Klaus Mueller.
@@ -62,15 +69,3 @@ Example output json:
 """
 
 print (ChatGPT_request(prompt))
-
-
-
-
-
-
-
-
-
-
-
-
