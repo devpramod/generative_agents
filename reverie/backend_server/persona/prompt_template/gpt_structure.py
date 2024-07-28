@@ -12,6 +12,7 @@ from openai import AzureOpenAI, OpenAI
 from utils import *
 from openai_cost_logger import DEFAULT_LOG_PATH
 from persona.prompt_template.openai_logger_singleton import OpenAICostLogger_Singleton
+import os
 
 config_path = Path("../../openai_config.json")
 with open(config_path, "r") as f:
@@ -38,7 +39,7 @@ def setup_client(type: str, config: dict):
     )
   elif type == "openai":
     client = OpenAI(
-        api_key=config["key"],
+        api_key=os.getenv(config["key"]),
     )
   else:
     raise ValueError("Invalid client")
@@ -60,7 +61,7 @@ if openai_config["embeddings-client"] == "azure":
       "api-version": openai_config["embeddings-api-version"],
   })
 elif openai_config["embeddings-client"] == "openai":
-  embeddings_client = setup_client("openai", { "key": openai_config["embeddings-key"] })
+  embeddings_client = setup_client("openai", { "key": os.environ.get(openai_config["embeddings-key"]) })
 else:
   raise ValueError("Invalid embeddings client")
 
