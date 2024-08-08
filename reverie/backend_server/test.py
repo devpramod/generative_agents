@@ -43,6 +43,39 @@ def ChatGPT_request(prompt):
     print(e)
     return "ChatGPT ERROR"
 
+def GPT_request(prompt, gpt_parameter): 
+  """
+  Given a prompt and a dictionary of GPT parameters, make a request to OpenAI
+  server and returns the response. 
+  ARGS:
+    prompt: a str prompt
+    gpt_parameter: a python dictionary with the keys indicating the names of  
+                   the parameter and the values indicating the parameter 
+                   values.   
+  RETURNS: 
+    a str of GPT-3's response. 
+  """
+  try: 
+    messages = [{
+      "role": "system", "content": prompt
+    }]
+    response = client.chat.completions.create(
+                model=gpt_parameter["engine"],
+                messages=messages,
+                temperature=gpt_parameter["temperature"],
+                max_tokens=gpt_parameter["max_tokens"],
+                top_p=gpt_parameter["top_p"],
+                frequency_penalty=gpt_parameter["frequency_penalty"],
+                presence_penalty=gpt_parameter["presence_penalty"],
+                stream=gpt_parameter["stream"],
+                stop=gpt_parameter["stop"],)
+
+    return response.choices[0].message.content
+  except Exception as e:
+    print(f"Error: {e}")
+    return "TOKEN LIMIT EXCEEDED"
+
+
 prompt = """
 ---
 Character 1: Maria Lopez is working on her physics degree and streaming games on Twitch to make some extra money. She visits Hobbs Cafe for studying and eating just about everyday.
@@ -129,6 +162,88 @@ In 5 min increments, list the subtasks Isabella does when Isabella is [(ID:E81HY
 """
 
 
+# below functions are for prompt triple action
+def __func_clean_up(gpt_response, prompt=""):
+    cr = gpt_response.strip()
+    cr = [i.strip() for i in cr.split(")")[0].split(",")]
+    return cr
+
+def __func_validate(gpt_response, prompt=""): 
+  try: 
+    gpt_response = __func_clean_up(gpt_response, prompt="")
+    if len(gpt_response) != 2: 
+      return False
+  except: return False
+  return True 
+
+
+prompt_triple_action = """
+Task: Turn the input into (subject, predicate, object). 
+
+Input: Sam Johnson is eating breakfast. 
+Output: (Sam Johnson, eat, breakfast) 
+--- 
+Input: Joon Park is brewing coffee.
+Output: (Joon Park, brew, coffee)
+---
+Input: Jane Cook is sleeping. 
+Output: (Jane Cook, is, sleep)
+---
+Input: Michael Bernstein is writing email on a computer. 
+Output: (Michael Bernstein, write, email)
+---
+Input: Percy Liang is teaching students in a classroom. 
+Output: (Percy Liang, teach, students)
+---
+Input: Merrie Morris is running on a treadmill. 
+Output: (Merrie Morris, run, treadmill)
+---
+Input: Isabella Rodriguez is sleeping. 
+Output: (Isabella Rodriguez,
+"""
+prompt_triple_action_v2 = f"""Task: Convert the given action into a triple format (subject, predicate, object).
+Rules:
+1. Subject is always the person's full name.
+2. Predicate is the main verb in base form, or "is" for states of being.
+3. Object is what the action is done to, or the base form of a state verb.
+4. Always maintain the order: (subject, predicate, object)
+5. Only provide the predicate and object, as the subject will be given.
+
+Examples:
+Input: Sam Johnson is eating breakfast.
+Output: (Sam Johnson, eat, breakfast)
+
+Input: Jane Cook is sleeping.
+Output: (Jane Cook, is, sleep)
+
+Input: Michael Bernstein is writing email on a computer.
+Output: (Michael Bernstein, write, email)
+
+Now, convert the following action:
+Input: Isabella Rodriguez is sleeping.
+Output: (Isabella Rodriguez, """
+
+prompt_act_obj_desc = """
+Task: We want to understand the state of an object that is being used by someone. 
+
+Let's think step by step. 
+We want to know about bed's state. 
+Step 1. Isabella Rodriguez is at/using the sleeping.
+Step 2. Describe the bed's state: bed is
+
+Output the response to the prompt above in json. The output should ONLY contain the phrase that should go in <fill in>.
+Example output json:
+{"output": "being fixed"}
+"""
+
 if __name__ == "__main__":
-  print (ChatGPT_request(prompt_task_scheduling_err))
+  print (ChatGPT_request(prompt_act_obj_desc))
+
+  #gpt_param = {"engine": "gpt-4o", "max_tokens": 30, 
+              #  "temperature": 0, "top_p": 1, "stream": False,
+              #  "frequency_penalty": 0, "presence_penalty": 0, "stop": ["\n"]}
+  
+
+  #curr_gpt_response = GPT_request(prompt_triple_action, gpt_param)
+
   

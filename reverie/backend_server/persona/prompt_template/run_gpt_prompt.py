@@ -299,6 +299,8 @@ def run_gpt_prompt_task_decomp(persona,
                                duration, 
                                test_input=None, 
                                verbose=False): 
+  
+  #commented to be replaced by function developed in 'test_prompt_task_decomp_v2.py'
   def create_prompt_input(persona, task, duration, test_input=None):
 
     """
@@ -355,6 +357,51 @@ def run_gpt_prompt_task_decomp(persona,
     prompt_input += [duration]
     prompt_input += [persona.scratch.get_str_firstname()]
     return prompt_input
+
+  # def create_prompt_input(persona, task, duration, test_input=None):
+  #   curr_f_org_index = persona.scratch.get_f_daily_schedule_hourly_org_index()
+  #   all_indices = [curr_f_org_index]
+  #   if curr_f_org_index+1 < len(persona.scratch.f_daily_schedule_hourly_org): 
+  #       all_indices += [curr_f_org_index+1]
+  #   if curr_f_org_index+2 < len(persona.scratch.f_daily_schedule_hourly_org): 
+  #       all_indices += [curr_f_org_index+2]
+
+  #   curr_time_range = ""
+
+  #   summ_str = f'Today is {persona.scratch.curr_time.strftime("%B %d, %Y")}. '
+  #   for index in all_indices: 
+  #       if index < len(persona.scratch.f_daily_schedule_hourly_org): 
+  #           start_min = sum(persona.scratch.f_daily_schedule_hourly_org[i][1] for i in range(index))
+  #           end_min = start_min + persona.scratch.f_daily_schedule_hourly_org[index][1]
+  #           start_time = (datetime.datetime.strptime("00:00:00", "%H:%M:%S") 
+  #                         + datetime.timedelta(minutes=start_min)) 
+  #           end_time = (datetime.datetime.strptime("00:00:00", "%H:%M:%S") 
+  #                         + datetime.timedelta(minutes=end_min)) 
+  #           start_time_str = start_time.strftime("%I:%M %p")
+  #           end_time_str = end_time.strftime("%I:%M %p")
+  #           activity = persona.scratch.f_daily_schedule_hourly_org[index][0]
+  #           # Extract only the activity description
+  #           activity = re.sub(r'\[.*?\]\s*', '', activity)
+  #           activity = re.sub(r'.*?Activity:\s*', '', activity)
+  #           summ_str += f"From {start_time_str} to {end_time_str}, {persona.name} is planning on {activity}. "
+  #           if curr_f_org_index == index:
+  #               curr_time_range = f'{start_time_str} to {end_time_str}'
+
+  #   prompt_input = []
+  #   prompt_input += [persona.scratch.get_str_iss()]
+  #   prompt_input += [summ_str]
+  #   prompt_input += [persona.scratch.get_str_firstname()]
+  #   prompt_input += [persona.scratch.get_str_firstname()]
+
+  #   # Extract only the activity description from the task
+  #   task = re.sub(r'\[.*?\]\s*', '', task)
+  #   task = re.sub(r'.*?Activity:\s*', '', task)
+
+  #   prompt_input += [task]
+  #   prompt_input += [curr_time_range]
+  #   prompt_input += [duration]
+  #   prompt_input += [persona.scratch.get_str_firstname()]
+  #   return prompt_input
 
   def extract_numeric_part(k):
     # Use regular expression to find all digits
@@ -925,6 +972,8 @@ def run_gpt_prompt_event_triple(action_description, persona, verbose=False):
   def __func_clean_up(gpt_response, prompt=""):
     cr = gpt_response.strip()
     cr = [i.strip() for i in cr.split(")")[0].split(",")]
+    # remove remaining leading or trailing brackets
+    cr = [i.strip('()') for i in cr]
     return cr
 
   def __func_validate(gpt_response, prompt=""): 
@@ -933,7 +982,8 @@ def run_gpt_prompt_event_triple(action_description, persona, verbose=False):
       if len(gpt_response) != 2: 
         return False
     except: return False
-    return True 
+    return True
+  
 
   def get_fail_safe(persona): 
     fs = (persona.name, "is", "idle")

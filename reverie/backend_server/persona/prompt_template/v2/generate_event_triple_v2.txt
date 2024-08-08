@@ -1,0 +1,30 @@
+generate_event_triple_v1.txt
+
+Variables: 
+!<INPUT 0>! -- Persona's full name. 
+!<INPUT 1>! -- Current action description
+!<INPUT 2>! -- Persona's full name. 
+
+<commentblockmarker>###</commentblockmarker>
+Task: Convert the given action into a triple format (subject, predicate, object).
+Rules:
+1. Subject is always the person's full name.
+2. Predicate is the main verb in base form, or "is" for states of being.
+3. Object is what the action is done to, or the base form of a state verb.
+4. Always maintain the order: (subject, predicate, object)
+5. Only provide the predicate and object, as the subject will be given.
+
+Examples:
+Input: Sam Johnson is eating breakfast.
+Output: (Sam Johnson, eat, breakfast)
+
+Input: Jane Cook is sleeping.
+Output: (Jane Cook, is, sleep)
+
+Input: Michael Bernstein is writing email on a computer.
+Output: (Michael Bernstein, write, email)
+
+Now, convert the following action:
+---
+Input: !<INPUT 0>! is !<INPUT 1>!. 
+Output: (!<INPUT 2>!,
